@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello Chandhana</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, #6a11cb, #2575fc, #ff4ecd);
+      position: relative;
+    }
+
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.6;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .circle1 {
+      width: 260px;
+      height: 260px;
+      background: #ff9a9e;
+      top: 10%;
+      left: 10%;
+    }
+
+    .circle2 {
+      width: 320px;
+      height: 320px;
+      background: #fad0c4;
+      bottom: 10%;
+      right: 12%;
+      animation-delay: 2s;
+    }
+
+    .circle3 {
+      width: 180px;
+      height: 180px;
+      background: #a18cd1;
+      bottom: 20%;
+      left: 20%;
+      animation-delay: 4s;
+    }
+
+    .card {
+      position: relative;
+      z-index: 2;
+      padding: 40px 60px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .title {
+      font-size: 3.2rem;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(90deg, #ffffff, #ffe082, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.25);
+    }
+
+    .subtitle {
+      margin-top: 14px;
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px) translateX(0px);
+      }
+      50% {
+        transform: translateY(-20px) translateX(10px);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 28px 24px;
+        margin: 20px;
+      }
+
+      .title {
+        font-size: 2.2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-circle circle1"></div>
+  <div class="bg-circle circle2"></div>
+  <div class="bg-circle circle3"></div>
+
+  <div class="card">
+    <div class="title">Hello </div>
+    <div class="subtitle">Wishing you a bright and beautiful day</div>
+  </div>
+</body>
+</html>

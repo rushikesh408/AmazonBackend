@@ -14,11 +14,16 @@ import com.rushitech.main.pojo.UserLogin;
 import com.rushitech.main.pojo.UserSingup;
 import com.rushitech.main.repository.UsersRepo;
 
+import jakarta.validation.constraints.NotNull;
+
 @Service
 public class UserService {
 
 	@Autowired
 	UsersRepo usersRepo;
+	
+	@Autowired
+	EmailService emailService;
 
 	public PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -34,7 +39,12 @@ public class UserService {
 			signupUsers.setName(userSingup.getName());
 
 			SignupUsers dbUserData = usersRepo.save(signupUsers);
-
+			
+			if (dbUserData != null) {
+				
+				emailService.sendTemplateEmail("vrushikesh2506@gmail.com", dbUserData.getEmail(), "Signup successful", "EmailTemplate");
+			}
+					
 			return dbUserData;
 		} else {
 			throw new Exception("user already exists. please login");

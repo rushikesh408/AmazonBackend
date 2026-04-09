@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.print.attribute.standard.JobKOctets;
+import javax.security.auth.Subject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,12 +13,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.Context;
 
 import com.rushitech.main.entity.SignupUsers;
 import com.rushitech.main.pojo.UserLogin;
 import com.rushitech.main.pojo.UserSingup;
+import com.rushitech.main.service.EmailService;
 import com.rushitech.main.service.UserService;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +35,8 @@ public class SingupController {
 		
 	@Autowired
 	UserService userService;
+	@Autowired
+	EmailService emailService;
 	
 	@PostMapping("/signup")
 	public ResponseEntity<Map<String, Object>> usersignup(@Valid @RequestBody UserSingup userSingup) throws Exception {
@@ -60,5 +66,55 @@ public class SingupController {
 		
 	}
 	
+	@GetMapping("/send-email")
+	public ResponseEntity<?> sendEmail(){
+		String fromEmail = "vrushikesh2506@gmail.com";
+		String toEmail = "birlachandhana@gmail.com";
+		String subject = "This is from Spring boot";
+		String mailbody="Hello my World";
+		
+		emailService.sendEmail(fromEmail,toEmail,subject,mailbody);
+		
+		Map<String, String> respoMap = new HashMap<String,String>();
+		respoMap.put("result", "email sent");
+		respoMap.put("message", "success");
+		
+		return ResponseEntity.status(HttpStatus.OK).body(respoMap);
+	}
+	@GetMapping("/send-emailV2")
+	public ResponseEntity<?> sendEmailV2() throws MessagingException{
+		 Context context = new Context();
+		String fromEmail = "vrushikesh2506@gmail.com";
+		String toEmail = "birlachandhana@gmail.com";
+		String subject = "This is from Spring boot";
+		//String mailbody="Hello my World";
+		String fileName = "EmailTemplate";
+		
+		emailService.sendTemplateEmail(fromEmail,toEmail,subject,fileName);
+		
+		Map<String, String> respoMap = new HashMap<String,String>();
+		respoMap.put("result", "email sent");
+		respoMap.put("message", "success");
+		
+		return ResponseEntity.status(HttpStatus.OK).body(respoMap);
+	}
+	
+	
+	
+	/* @PostMapping("/sendEmailV2")
+	    public String sendEmail(@RequestBody EmailRequest emailRequest) {
+	        Context context = new Context();
+	        // Set variables for the template from the POST request data
+	        context.setVariable("name", emailRequest.getName());
+	        context.setVariable("message", emailRequest.getMessage());
+	        context.setVariable("subject", emailRequest.getSubject());
+	        try {
+	            emailService.sendEmail(emailRequest.getTo(), emailRequest.getSubject(), "emailTemplate", context);
+	            return "Email sent successfully!";
+	        } catch (Exception e) {
+	            return "Error sending email: " + e.getMessage();
+	        }
+	    }
+	*/
 
 }
