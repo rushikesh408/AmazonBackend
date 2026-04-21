@@ -13,46 +13,53 @@ import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
-	
-	@Autowired
-	JavaMailSender javaMailSender;
-	@Autowired
-	TemplateEngine templateEngine;
-	
-	
-	public void sendEmail(String fromEmail, String toEmail,String mailSubject, String mailBody) {
-		
-		SimpleMailMessage message = new SimpleMailMessage();
-		
-		message.setFrom(fromEmail);
-		message.setTo(toEmail);
-		message.setSubject(mailSubject);
-		message.setText(mailBody);
-		javaMailSender.send(message);
-		
-	}
-	
-	public void sendTemplateEmail(String fromEmail, String toEmail, String mailSubject, String fileName) throws MessagingException {
-		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-		
-		Context context = new Context();
-		String htmlContent = templateEngine.process(fileName, context);
-		
-		
-		// Set email properties
-		helper.setFrom(fromEmail);
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    public void sendEmail(String fromEmail, String toEmail, String mailSubject, String mailBody) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject(mailSubject);
+        message.setText(mailBody);
+        javaMailSender.send(message);
+    }
+
+    public void sendTemplateEmail(
+            String fromEmail,
+            String toEmail,
+            String mailSubject,
+            String fileName,
+            String userName,
+            String emailType,
+            String actionUrl
+    ) throws MessagingException {
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        Context context = new Context();
+        context.setVariable("userName", userName);
+        context.setVariable("emailType", emailType);
+        context.setVariable("actionUrl", actionUrl);
+
+        if ("reset-password".equals(emailType)) {
+            context.setVariable("actionText", "Reset Password");
+        } else {
+            context.setVariable("actionText", "Get Started");
+        }
+
+        String htmlContent = templateEngine.process(fileName, context);
+
+        helper.setFrom(fromEmail);
         helper.setTo(toEmail);
         helper.setSubject(mailSubject);
-        helper.setText(htmlContent, true); // Set true for HTML content
+        helper.setText(htmlContent, true);
 
-        // Send the email
         javaMailSender.send(mimeMessage);
-		
-		
-	}
-	
-		
-	
-
+    }
 }

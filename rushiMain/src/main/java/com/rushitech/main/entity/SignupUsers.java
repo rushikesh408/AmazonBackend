@@ -28,6 +28,7 @@ public class SignupUsers {
 	private LocalDateTime createdOnDateTime=LocalDateTime.now();
 	private boolean isActive=true;
 	private boolean isEmailVerified=false;
+	private String passwordResetuuid;
 //	@Id
 //	 @GeneratedValue(strategy = GenerationType.UUID)
 //	private UUID userUnqId;
