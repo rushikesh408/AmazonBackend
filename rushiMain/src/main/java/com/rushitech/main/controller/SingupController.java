@@ -56,7 +56,7 @@ public class SingupController {
 
 	@GetMapping("/login")
 	public ResponseEntity<?> userLogin(@Valid @RequestBody UserLogin userLogin) throws Exception {
-		SignupUsers resObject = userService.userLoginService(userLogin);
+		Map<String, Object> resObject = userService.userLoginService(userLogin);
 
 		Map<String, Object> loginMap = new HashMap<String, Object>();
 

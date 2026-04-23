@@ -28,6 +28,9 @@ public class UserService {
 	@Autowired
 	EmailService emailService;
 
+	@Autowired
+	JWTTokenGenerator jwtgenerator;
+
 	public PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	public SignupUsers userSignupService(UserSingup userSingup) throws Exception {
@@ -45,15 +48,8 @@ public class UserService {
 
 			if (dbUserData != null) {
 
-				emailService.sendTemplateEmail(
-					    "vrushikesh2506@gmail.com",
-					    dbUserData.getEmail(),
-					    "Signup successful",
-					    "common-email-template",
-					    dbUserData.getName(),
-					    "signup",
-					    "http://localhost:8080/login"
-					);
+				emailService.sendTemplateEmail("vrushikesh2506@gmail.com", dbUserData.getEmail(), "Signup successful",
+						"EmailTemplate", dbUserData.getName(), "signup", "http://localhost:8080/login");
 			}
 
 			return dbUserData;
@@ -77,19 +73,13 @@ public class UserService {
 			SignupUsers passwordResetData = usersRepo.save(dbUserData);
 
 			System.out.print(passwordResetData);
-			//return passwordResetData;
-			
-			String resetLink = "http://localhost:3000/reset-password?passwordResetuuid=" + passwordResetData.getPasswordResetuuid();
+			// return passwordResetData;
 
-			emailService.sendTemplateEmail(
-			        "vrushikesh2506@gmail.com",
-			        passwordResetData.getEmail(),
-			        "Reset Your Password",
-			        "EmailTemplate",
-			        passwordResetData.getName(),
-			        "reset-password",
-			        resetLink
-			);
+			String resetLink = "http://localhost:3000/reset-password?passwordResetuuid="
+					+ passwordResetData.getPasswordResetuuid();
+
+			emailService.sendTemplateEmail("vrushikesh2506@gmail.com", passwordResetData.getEmail(),
+					"Reset Your Password", "EmailTemplate", passwordResetData.getName(), "reset-password", resetLink);
 			return passwordResetData;
 		}
 
@@ -99,30 +89,29 @@ public class UserService {
 		SignupUsers user = new SignupUsers();
 		Optional<SignupUsers> dbemailData = usersRepo
 				.findByPasswordResetuuid(resetPasswordApiData.getPasswordResetuuid());
-		
+
 		if (dbemailData.isEmpty()) {
 			throw new Exception("password reset link is not active please try again");
 		}
-		
-		if ((resetPasswordApiData.getPassword().equals(resetPasswordApiData.getConfirmPassword()))==false) {
-				throw new Exception("both passwords does not match");
+
+		if ((resetPasswordApiData.getPassword().equals(resetPasswordApiData.getConfirmPassword())) == false) {
+			throw new Exception("both passwords does not match");
 		}
-		
-		if ( resetPasswordApiData.getPasswordResetuuid().isEmpty() ) {
+
+		if (resetPasswordApiData.getPasswordResetuuid().isEmpty()) {
 			throw new Exception("password reset link is not active please try again");
 		}
-		
+
 		SignupUsers dbUserData = dbemailData.get();
 		dbUserData.setPassword(passwordEncoder.encode(resetPasswordApiData.getPassword()));
 		dbUserData.setPasswordResetuuid(null);
-		 SignupUsers passwordResetData= usersRepo.save(dbUserData);
-		 
-		 return passwordResetData;
-		
+		SignupUsers passwordResetData = usersRepo.save(dbUserData);
+
+		return passwordResetData;
 
 	}
 
-	public SignupUsers userLoginService(UserLogin userLogin) throws Exception {
+	public Map<String, Object> userLoginService(UserLogin userLogin) throws Exception {
 		SignupUsers signupUsers = new SignupUsers();
 
 		Optional<SignupUsers> dbemailData = usersRepo.findByEmail(userLogin.getEmail());
@@ -133,10 +122,15 @@ public class UserService {
 			SignupUsers dbUserData = dbemailData.get();
 
 			if (passwordEncoder.matches(userLogin.getPassword(), dbUserData.getPassword())) {
+				
+				String jwtTokenGeneratedString = jwtgenerator.generateToken(dbUserData);
+				
 				Map<String, Object> loginDetails = new HashMap<String, Object>();
 				loginDetails.put("message", "success");
 				loginDetails.put("user", userLogin.getEmail());
-				return dbUserData;
+				loginDetails.put("token", jwtTokenGeneratedString);
+
+				return loginDetails;
 			} else {
 				throw new Exception("Invalid password please try again");
 			}
