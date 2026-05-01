@@ -13,11 +13,14 @@ public class UserSingup {
 
 		@NotNull(message = "name cannot be empty")
 		private String name; 
+		
 		@NotNull(message = "email cannot be empty")
 		@Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
 		private String email;
+		
 		@NotNull(message = "mobile number cannot be empty")
 		private int mobilenumber;
+		
 		@NotNull(message = "password is must")
 		private String password;
 		

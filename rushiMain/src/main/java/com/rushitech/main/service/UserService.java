@@ -45,11 +45,15 @@ public class UserService {
 			signupUsers.setName(userSingup.getName());
 
 			SignupUsers dbUserData = usersRepo.save(signupUsers);
+			System.out.println("data saved");
+			System.out.println("data saved");
 
+			System.out.println("data saved");
 			if (dbUserData != null) {
 
-				emailService.sendTemplateEmail("vrushikesh2506@gmail.com", dbUserData.getEmail(), "Signup successful",
-						"EmailTemplate", dbUserData.getName(), "signup", "http://localhost:8080/login");
+				/*emailService.sendTemplateEmail("vrushikesh2506@gmail.com", dbUserData.getEmail(), "Signup successful",
+						"EmailTemplate", dbUserData.getName(), "signup", "http://localhost:8081/login");*/
+				
 			}
 
 			return dbUserData;
@@ -117,14 +121,14 @@ public class UserService {
 		Optional<SignupUsers> dbemailData = usersRepo.findByEmail(userLogin.getEmail());
 
 		if (dbemailData.isEmpty()) {
-			throw new Exception("user already exists. please login");
+			throw new Exception("user does not exists please signup");
 		} else {
 			SignupUsers dbUserData = dbemailData.get();
 
 			if (passwordEncoder.matches(userLogin.getPassword(), dbUserData.getPassword())) {
-				
+
 				String jwtTokenGeneratedString = jwtgenerator.generateToken(dbUserData);
-				
+
 				Map<String, Object> loginDetails = new HashMap<String, Object>();
 				loginDetails.put("message", "success");
 				loginDetails.put("user", userLogin.getEmail());

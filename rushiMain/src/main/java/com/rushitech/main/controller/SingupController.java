@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.context.Context;
 
@@ -22,6 +23,7 @@ import com.rushitech.main.pojo.ResetPasswordApiData;
 import com.rushitech.main.pojo.UserLogin;
 import com.rushitech.main.pojo.UserSingup;
 import com.rushitech.main.service.EmailService;
+import com.rushitech.main.service.JWTTokenGenerator;
 import com.rushitech.main.service.UserService;
 
 import jakarta.mail.MessagingException;
@@ -39,6 +41,9 @@ public class SingupController {
 	UserService userService;
 	@Autowired
 	EmailService emailService;
+	
+	@Autowired
+	JWTTokenGenerator jwtTokenGenerator;
 
 	@PostMapping("/signup")
 	public ResponseEntity<Map<String, Object>> usersignup(@Valid @RequestBody UserSingup userSingup) throws Exception {
@@ -55,15 +60,36 @@ public class SingupController {
 	}
 
 	@GetMapping("/login")
-	public ResponseEntity<?> userLogin(@Valid @RequestBody UserLogin userLogin) throws Exception {
-		Map<String, Object> resObject = userService.userLoginService(userLogin);
+	public ResponseEntity<?> userLogin(@RequestHeader("Authorization") String jwtToekn,  @Valid @RequestBody UserLogin userLogin) throws Exception {
+		System.out.println();
+		System.out.println();
+		System.out.print(jwtToekn);
+		System.out.println();
+	Boolean valid = 	jwtTokenGenerator.verifyJwtToken(jwtToekn);
+		System.out.println(valid);
+		System.out.println();
+		System.out.println();
+		
+		if (valid=true) {
+			Map<String, Object> resObject = userService.userLoginService(userLogin);
 
-		Map<String, Object> loginMap = new HashMap<String, Object>();
+			Map<String, Object> loginMap = new HashMap<String, Object>();
 
-		loginMap.put("result", "success");
-		loginMap.put("data", resObject);
+			
+			
+			loginMap.put("result", "success");
+			loginMap.put("data", resObject);
 
-		return ResponseEntity.status(HttpStatus.OK).body(loginMap);
+			return ResponseEntity.
+					status(HttpStatus.OK).
+					header("Authorization", resObject.get("token").toString()).
+					body(loginMap);
+
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		}
+		
 
 	}
 
@@ -83,10 +109,11 @@ public class SingupController {
 	}
 
 	@PostMapping("/reset-password")
-	public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordApiData resetPasswordApiData) throws Exception {
+	public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordApiData resetPasswordApiData)
+			throws Exception {
 
-		SignupUsers resetPasswordData  =  userService.resetPasswordService(resetPasswordApiData);
-		
+		SignupUsers resetPasswordData = userService.resetPasswordService(resetPasswordApiData);
+
 		Map<String, Object> resetPasswordMap = new HashMap<String, Object>();
 
 		resetPasswordMap.put("message", "success");
@@ -113,30 +140,22 @@ public class SingupController {
 
 	@GetMapping("/send-emailV2")
 	public ResponseEntity<?> sendEmailV2() throws MessagingException {
-	    String fromEmail = "vrushikesh2506@gmail.com";
-	    String toEmail = "birlachandhana@gmail.com";
-	    String subject = "This is from Spring Boot";
-	    String fileName = "common-email-template";
+		String fromEmail = "vrushikesh2506@gmail.com";
+		String toEmail = "birlachandhana@gmail.com";
+		String subject = "This is from Spring Boot";
+		String fileName = "common-email-template";
 
-	    String userName = "Chandhana";
-	    String emailType = "signup";
-	    String actionUrl = "http://localhost:8080/login";
+		String userName = "Chandhana";
+		String emailType = "signup";
+		String actionUrl = "http://localhost:8080/login";
 
-	    emailService.sendTemplateEmail(
-	            fromEmail,
-	            toEmail,
-	            subject,
-	            fileName,
-	            userName,
-	            emailType,
-	            actionUrl
-	    );
+		emailService.sendTemplateEmail(fromEmail, toEmail, subject, fileName, userName, emailType, actionUrl);
 
-	    Map<String, String> responseMap = new HashMap<>();
-	    responseMap.put("result", "email sent");
-	    responseMap.put("message", "success");
+		Map<String, String> responseMap = new HashMap<>();
+		responseMap.put("result", "email sent");
+		responseMap.put("message", "success");
 
-	    return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
 	}
 	/*
 	 * @PostMapping("/sendEmailV2") public String sendEmail(@RequestBody
